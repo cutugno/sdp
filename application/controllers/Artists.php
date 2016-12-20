@@ -71,12 +71,12 @@ class Artists extends CI_Controller {
         public function delete($id) {
 			if ($deleted_artist=$this->artists_model->findArtist($id)) {
 				if ($this->artists_model->deleteArtist($id)) {
-					custom_log('Artista cancellato.');					
+					custom_log('Artista cancellato. Artista: '.$deleted_artist->name);					
 				}else{
-					custom_log('Errore cancellazione artista.');
+					custom_log('Errore cancellazione artista. Artista: '.$deleted_artist->name);
 				}
 			}else{
-				custom_log('Errore cancellazione artista inesistente.');
+				custom_log('Errore cancellazione artista, artista inesistente.');
 			}
 			redirect('artists');
 		}
