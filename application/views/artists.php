@@ -63,6 +63,20 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 							'placeholder'	=> 'Digita il nome artista qui'
 					);
 					echo form_input($data);				
+					echo form_error('name');
+				?>
+			</div>
+			<div class="form-group">
+				<label for="url_name">URL</label>
+				<?php
+					$data = array(
+							'name'          => 'url_name',
+							'id'            => 'url_name',
+							'class'			=> 'form-control',
+							'placeholder'	=> 'Digita l\'URL dell\'artista qui'
+					);
+					echo form_input($data);	
+					echo form_error('url_name');			
 				?>
 			</div>
 			<?php
@@ -73,7 +87,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 				);
 				echo form_button($data);				
 				echo form_close();
-				echo form_error('name');
 			?>
 		</div>
 	</div>

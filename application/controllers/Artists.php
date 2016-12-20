@@ -10,6 +10,7 @@ class Artists extends CI_Controller {
         public function index() {
 			$this->load->library('form_validation');
 			$this->form_validation->set_rules('name', 'Nome', 'callback_required_artist|callback_duplicate_artist');
+			$this->form_validation->set_rules('url_name', 'URL', 'callback_required_url|callback_duplicate_url');
 			$this->form_validation->set_error_delimiters('<p class="text-danger">','</p>');
 			
 			if ($this->form_validation->run() !== FALSE) {
@@ -85,7 +86,7 @@ class Artists extends CI_Controller {
         public function required_artist($str) {
 			if (trim($str)=="") {
 				$this->form_validation->set_message('required_artist', 'Campo {field} obbligatorio.');
-				custom_log('Errore inserimento artista senza nome.');
+				custom_log('Errore inserimento artista, nome non inserito.');
 				return FALSE;
 			}else{
 				return TRUE;
@@ -95,7 +96,27 @@ class Artists extends CI_Controller {
         public function duplicate_artist($str) {
 			if ($this->artists_model->findArtistByName($str)) {
 				$this->form_validation->set_message('duplicate_artist', '{field} \''.$str.'\' duplicato');
-				custom_log('Errore inserimento artista duplicato. Artista: '.$str);
+				custom_log('Errore inserimento artista, nome duplicato. Artista: '.$str);
+				return FALSE;
+			}else{
+				return TRUE;
+			}
+		}
+		
+		public function required_url($str) {
+			if (trim($str)=="") {
+				$this->form_validation->set_message('required_url', 'Campo {field} obbligatorio.');
+				custom_log('Errore inserimento artista, url non inserito.');
+				return FALSE;
+			}else{
+				return TRUE;
+			}
+		}
+		
+        public function duplicate_url($str) {
+			if ($this->artists_model->findArtistByUrlName($str)) {
+				$this->form_validation->set_message('duplicate_url', '{field} \''.$str.'\' duplicato');
+				custom_log('Errore inserimento artista, url duplicato. Artista: '.$str);
 				return FALSE;
 			}else{
 				return TRUE;
@@ -105,7 +126,7 @@ class Artists extends CI_Controller {
 		public function required_edited_artist($str) {
 			if (trim($str)=="") {
 				$this->form_validation->set_message('required_edited_artist', 'Campo {field} obbligatorio.');
-				custom_log('Errore modifica artista, nuovo nome non inserito.');
+				custom_log('Errore modifica artista, nuovo url non inserito.');
 				return FALSE;
 			}else{
 				return TRUE;
