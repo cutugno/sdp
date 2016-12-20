@@ -17,9 +17,9 @@ class Artists extends CI_Controller {
 				$post=$this->input->post();
 				$post['url_name']=url_title($post['name']);
 				if ($artist=$this->artists_model->createArtist($post)){
-					custom_log('Artista inserito. Artista: '.$post['name']);						
+					custom_log('Artista inserito. Dati: '.json_encode($post));						
 				}else{
-					custom_log('Errore inserimento artista. Artista: '.$post['name']);
+					custom_log('Errore inserimento artista. Dati: '.json_encode($post));
 				}
 			}
 							
@@ -44,14 +44,14 @@ class Artists extends CI_Controller {
 			
 			if ($this->form_validation->run() !== FALSE) {
 				$post=$this->input->post();
-				$recent_user = Model\Artists::find($post['id']);
-				$recent_user->name = $post['name'];
-				$recent_user->url_name = $post['url_name'];
-				if ($recent_user->save(TRUE)) {
-					custom_log('Artista modificato. Artista id: '.$post['id']);		
+				$edited_artist=Model\Artists::find($post['id']);
+				$edited_artist->name=$post['name'];
+				$edited_artist->url_name=$post['url_name'];
+				if ($edited_artist->save(TRUE)) {
+					custom_log('Artista modificato. Dati: '.json_encode($post));		
 					redirect('artists/'.$post['url_name']);
 				}else{
-					custom_log('Errore modifica artista. Artista id: '.$id);
+					custom_log('Errore modifica artista. Dati: '.json_encode($post));
 					echo "errore modifica artista";
 				}
 			}
@@ -69,64 +69,69 @@ class Artists extends CI_Controller {
 		}      
         
         public function delete($id) {
-			if ($this->artists_model->findArtist($id)) {
+			if ($deleted_artist=$this->artists_model->findArtist($id)) {
 				if ($this->artists_model->deleteArtist($id)) {
-					custom_log('Artista cancellato. Artista id: '.$id);					
+					custom_log('Artista cancellato.');					
 				}else{
-					custom_log('Errore cancellazione artista. Artista id: '.$id);
+					custom_log('Errore cancellazione artista.');
 				}
 			}else{
-				custom_log('Errore cancellazione artista inesistente. Artista id: '.$id);
+				custom_log('Errore cancellazione artista inesistente.');
 			}
 			redirect('artists');
 		}
         
         // ------------------- callback validazione artista -------------------------------------------
         
-        public function required_artist($str) {
-			if (trim($str)=="") {
+        public function required_artist() {
+			$post=$this->input->post();
+			if (trim($post['name'])=="") {
 				$this->form_validation->set_message('required_artist', 'Campo {field} obbligatorio.');
-				custom_log('Errore inserimento artista, nome non inserito.');
+				custom_log('Errore inserimento artista, nome non inserito. Dati: '.json_encode($post));
 				return FALSE;
 			}else{
 				return TRUE;
 			}
 		}
 		
-        public function duplicate_artist($str) {
-			if ($this->artists_model->findArtistByName($str)) {
-				$this->form_validation->set_message('duplicate_artist', '{field} \''.$str.'\' duplicato');
-				custom_log('Errore inserimento artista, nome duplicato. Artista: '.$str);
+        public function duplicate_artist() {
+			$post=$this->input->post();
+			if ($this->artists_model->findArtistByName($post['name'])) {
+				$this->form_validation->set_message('duplicate_artist', '{field} \''.$post['name'].'\' duplicato');
+				custom_log('Errore inserimento artista, nome duplicato. Dati: '.json_encode($post));
 				return FALSE;
 			}else{
 				return TRUE;
 			}
 		}
 		
-		public function required_url($str) {
-			if (trim($str)=="") {
+		public function required_url() {
+			$post=$this->input->post();
+			if (trim($post['url_name'])=="") {
 				$this->form_validation->set_message('required_url', 'Campo {field} obbligatorio.');
-				custom_log('Errore inserimento artista, url non inserito.');
+				custom_log('Errore inserimento artista, url non inserito. Dati: '.json_encode($post));
 				return FALSE;
 			}else{
 				return TRUE;
 			}
 		}
 		
-        public function duplicate_url($str) {
-			if ($this->artists_model->findArtistByUrlName($str)) {
-				$this->form_validation->set_message('duplicate_url', '{field} \''.$str.'\' duplicato');
-				custom_log('Errore inserimento artista, url duplicato. Artista: '.$str);
+        public function duplicate_url() {
+			$post=$this->input->post();
+			if ($this->artists_model->findArtistByUrlName($post['url_name'])) {
+				$this->form_validation->set_message('duplicate_url', '{field} \''.$post['url_name'].'\' duplicato');
+				custom_log('Errore inserimento artista, url duplicato. Dati: '.json_encode($post));
 				return FALSE;
 			}else{
 				return TRUE;
 			}
 		}
 		
-		public function required_edited_artist($str) {
-			if (trim($str)=="") {
+		public function required_edited_artist() {
+			$post=$this->input->post();
+			if (trim($post['name']=="")) {
 				$this->form_validation->set_message('required_edited_artist', 'Campo {field} obbligatorio.');
-				custom_log('Errore modifica artista, nuovo url non inserito.');
+				custom_log('Errore modifica artista, nuovo url non inserito. Dati: '.json_encode($post));
 				return FALSE;
 			}else{
 				return TRUE;
@@ -134,13 +139,12 @@ class Artists extends CI_Controller {
 		}
 		
 		public function duplicate_edited_artist() {
-			$nome=$this->input->post('name');
-			$my_id=$this->input->post('id');
-			if ($similar_artists=$this->artists_model->findArtistByName($nome)) {
+			$post=$this->input->post();
+			if ($similar_artists=$this->artists_model->findArtistByName($post['name'])) {
 				foreach ($similar_artists as $artist) {
-					if ($artist->id != $my_id) {
-						$this->form_validation->set_message('duplicate_edited_artist', '{field} \''.$nome.'\' duplicato');
-						custom_log('Errore modifica artista, nuovo nome artista duplicato.');
+					if ($artist->id != $post['id']) {
+						$this->form_validation->set_message('duplicate_edited_artist', '{field} \''.$post['name'].'\' duplicato');
+						custom_log('Errore modifica artista, nuovo nome artista duplicato. Dati: '.json_encode($post));
 						return FALSE;
 					}
 				}
@@ -148,10 +152,11 @@ class Artists extends CI_Controller {
 			return TRUE;
 		}
 		
-		public function required_edited_artist_url($str) {
-			if (trim($str)=="") {
+		public function required_edited_artist_url() {
+			$post=$this->input->post();
+			if (trim($post['url_name'])=="") {
 				$this->form_validation->set_message('required_edited_artist_url', 'Campo {field} obbligatorio.');
-				custom_log('Errore modifica artista, nuovo url artista non inserito.');
+				custom_log('Errore modifica artista, nuovo url artista non inserito. Dati: '.json_encode($post));
 				return FALSE;
 			}else{
 				return TRUE;
@@ -159,13 +164,12 @@ class Artists extends CI_Controller {
 		}
 		
 		public function duplicate_edited_artist_url() {
-			$url=trim($this->input->post('url_name'));
-			$my_id=$this->input->post('id');
-			if ($similar_artists=$this->artists_model->findArtistByUrlName($url)) {
+			$post=$this->input->post();
+			if ($similar_artists=$this->artists_model->findArtistByUrlName($post['url_name'])) {
 				foreach ($similar_artists as $artist) {
-					if ($artist->id != $my_id) {
-						$this->form_validation->set_message('duplicate_edited_artist_url', '{field} \''.$url.'\' duplicato');
-						custom_log('Errore modifica artista, nuovo url artista duplicato.');
+					if ($artist->id != $post['id']) {
+						$this->form_validation->set_message('duplicate_edited_artist_url', '{field} \''.$post['url_name'].'\' duplicato');
+						custom_log('Errore modifica artista, nuovo url artista duplicato. Dati: '.json_encode($post));
 						return FALSE;
 					}
 				}

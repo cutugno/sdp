@@ -21,7 +21,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 								<td><?php echo $artist->name; ?></td>                      
 								<td><?php echo $artist->created_at; ?></td>                      
 								<td><?php echo $artist->modified_at; ?></td>  
-								<td><a href="<?php echo site_url('artists/'.url_title($artist->name)); ?>">
+								<td><a href="<?php echo site_url('artists/'.url_title($artist->url_name)); ?>">
 									<?php
 										$data = array(
 												'type'          => 'button',
